@@ -15,25 +15,20 @@
     "train": {
       "name": "train_dataset"           // just name
       , "dataset_type": "dwcnn"         // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "jpeg"
-      , "dataroot_H": "trainsets/trainH"// path of H training dataset. DIV2K (800 training images) + Flickr2K (2650 images) + BSD500 (400 training&testing images) + WED(4744 images) in SwinIR
+      , "dataroot_H": "/content/drive/MyDrive/demark/train" // path of H training dataset. DIV2K (800 training images) + Flickr2K (2650 images) + BSD500 (400 training&testing images) + WED(4744 images) in SwinIR
       , "dataroot_L": null              // path of L training dataset
-
-      , "H_size": 256                   // patch_size
-      , "sigma": 15                     //  15 | 25 | 50. We fine-tune sigma=25/50 models from sigma=15 model, so that `G_optimizer_lr` and `G_scheduler_milestones` can be halved to save time.
-      , "sigma_test": 15                // 
-
+      , "watermark": "/content/drive/MyDrive/demark/sh-logo.png"
+      , "H_size": 512                   // patch_size
+      
       , "dataloader_shuffle": true
-      , "dataloader_num_workers": 8
-      , "dataloader_batch_size": 16      // batch size 1 | 16 | 32 | 48 | 64 | 128. Total batch size =1x8=8 in SwinIR
+      , "dataloader_num_workers": 4
+      , "dataloader_batch_size": 8      // batch size 1 | 16 | 32 | 48 | 64 | 128. Total batch size =1x8=8 in SwinIR
     }
     , "test": {
       "name": "test_dataset"            // just name
       , "dataset_type": "dwcnn"         // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "jpeg"
       , "dataroot_H": "testsets/land"  // path of H testing dataset
       , "dataroot_L": null              // path of L testing dataset
-
-      , "sigma": 15                     // 
-      , "sigma_test": 15                // 
 
     }
   }
@@ -42,7 +37,7 @@
     "net_type": "swinir" 
     , "upscale": 1 
     , "in_chans": 3 
-    , "img_size": 128 
+    , "img_size": 512 
     , "window_size": 8  
     , "img_range": 1.0 
     , "depths": [6, 6, 6, 6, 6, 6] 
@@ -56,7 +51,7 @@
   }
 
   , "train": {
-    "G_lossfn_type": "charbonnier"      // "l1" | "l2sum" | "l2" | "ssim" | "charbonnier" preferred
+    "G_lossfn_type": "l1"      // "l1" | "l2sum" | "l2" | "ssim" | "charbonnier" preferred
     , "G_lossfn_weight": 1.0            // default
     , "G_charbonnier_eps": 1e-9
 
@@ -78,8 +73,8 @@
     , "G_param_strict": true
     , "E_param_strict": true
 
-    , "checkpoint_test": 5000           // for testing
-    , "checkpoint_save": 5000           // for saving model
+    , "checkpoint_test": 1000           // for testing
+    , "checkpoint_save": 1000           // for saving model
     , "checkpoint_print": 200           // for print
   }
 }

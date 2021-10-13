@@ -29,11 +29,9 @@ class DatasetDwCNN(data.Dataset):
         # get path of H
         # return None if input is None
         # ------------------------------------
-        #self.paths_H = util.get_image_paths(opt['dataroot_H'])
-        self.paths_H = util.get_image_paths("/content/drive/MyDrive/demark/train")
+        self.paths_H = util.get_image_paths(opt['dataroot_H'])
         self.paths_H = np.random.shuffle(np.repeat(self.paths_H, 10))
-
-        self.wmark = cv2.imread("/content/drive/MyDrive/demark/sh-logo.png", cv2.IMREAD_UNCHANGED)
+        self.wmark = cv2.imread(opt['watermark'], cv2.IMREAD_UNCHANGED)
         
     def __getitem__(self, index):
 
