@@ -14,6 +14,8 @@ def define_Dataset(dataset_opt):
     if dataset_type in ['l', 'low-quality', 'input-only']:
         from data.dataset_l import DatasetL as D
 
+    elif dataset_type in ['dwcnn', 'dewatermarking']:
+        from data.dataset_dwcnn import DatasetDwCNN as D
     # -----------------------------------------
     # denoising
     # -----------------------------------------
