@@ -30,7 +30,8 @@ class DatasetDwCNN(data.Dataset):
         # return None if input is None
         # ------------------------------------
         self.paths_H = util.get_image_paths(opt['dataroot_H'])
-        self.paths_H = np.random.shuffle(np.repeat(self.paths_H, 10))
+        self.paths_H = np.repeat(self.paths_H, 10)
+        np.random.shuffle(self.paths_H)
         self.wmark = cv2.imread(opt['watermark'], cv2.IMREAD_UNCHANGED)
         
     def __getitem__(self, index):
