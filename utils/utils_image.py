@@ -198,6 +198,8 @@ def imread_uint(path, n_channels=3):
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)  # GGG
         else:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # RGB
+    elif n_channels = 4:
+        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # RGBA
     return img
 
 
