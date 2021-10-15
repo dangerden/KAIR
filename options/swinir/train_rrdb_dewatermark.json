@@ -2,7 +2,7 @@
     "task": "swinir_dewatermark"     //  color Gaussian denoising for noise level 15/25/50. root/task/images-models-options
     , "model": "plain" // "plain" | "plain2" if two inputs
     , "gpu_ids": [0]
-  
+
     , "n_channels": 3  // broadcast to "datasets", 1 for grayscale, 3 for color
   
     , "path": {
@@ -31,27 +31,25 @@
         , "dataroot_L": null              // path of L testing dataset
         , "watermark": "/content/drive/MyDrive/demark/sh-logo.png"
         , "H_size": 256                   // patch_size
-  
       }
     }
-  
     , "netG": {
-      "net_type": "swinir" 
-      , "upscale": 1 
-      , "in_chans": 3 
-      , "img_size": 512 
-      , "window_size": 8  
-      , "img_range": 1.0 
-      , "depths": [6, 6, 6, 6, 6, 6] 
-      , "embed_dim": 180 
-      , "num_heads": [6, 6, 6, 6, 6, 6]
-      , "mlp_ratio": 2 
-      , "upsampler": null                 // "pixelshuffle" | "pixelshuffledirect" | "nearest+conv" | null
-      , "resi_connection": "1conv"        // "1conv" | "3conv"
-  
-      , "init_type": "default"
-    }
-  
+        "net_type": "rrdb"  // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "msrresnet0" |  "msrresnet1" | "rrdb" 
+        , "in_nc": 3        // input channel number
+        , "out_nc": 3       // ouput channel number
+        , "nc": 64          // 96 for "dpsr", 128 for "srmd", 64 for "dncnn" and "rrdb"
+        , "nb": 23          // 23 for "rrdb", 12 for "srmd", 15 for "ffdnet", 20 for "dncnn", 16 for "srresnet" and "dpsr"
+        , "gc": 32          // number of growth channels for "rrdb"
+        , "ng": 2           // unused
+        , "reduction" : 16  // unused
+        , "act_mode": "R"   // "BR" for BN+ReLU | "R" for ReLU
+        , "upsample_mode": "upconv"         // "pixelshuffle" | "convtranspose" | "upconv"
+        , "downsample_mode": "strideconv"   // "strideconv" | "avgpool" | "maxpool"
+    
+        , "init_type": "orthogonal"         // "orthogonal" | "normal" | "uniform" | "xavier_normal" | "xavier_uniform" | "kaiming_normal" | "kaiming_uniform"
+        , "init_bn_type": "uniform"         // "uniform" | "constant"
+        , "init_gain": 0.2
+      }  
     , "train": {
       "G_lossfn_type": "l1"      // "l1" | "l2sum" | "l2" | "ssim" | "charbonnier" preferred
       , "G_lossfn_weight": 1.0            // default
