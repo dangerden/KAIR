@@ -93,29 +93,40 @@ class DatasetDwCNN(data.Dataset):
             # --------------------------------
             # train on smaller images (should we?)
             # --------------------------------
-            img_H = util.imread_uint(H_path, self.n_channels)
+            img_H = cv2.imread(H_path)
             H, W, _ = img_H.shape
             img_H = cv2.resize(img_H, (1024, round(1024*H/W)) , interpolation=cv2.INTER_LANCZOS4)
             H, W, _ = img_H.shape
 
             # --------------------------------
+            # algorithmic removal
+            # --------------------------------
+            if H_path.find('sharing_rnd') != -1:
+              img_L = np.copy(img_H)
+              img_H = dewatermark(img_L, self.wmark)
+              #
+              img_L = cv2.cvtColor(img_L, cv2.COLOR_BGR2RGB)
+              img_H = cv2.cvtColor(img_H, cv2.COLOR_BGR2RGB)
+
+            else:
+            # --------------------------------
             # randomly watermark
             # --------------------------------
-            WM_H, WM_W, _ = self.wmark.shape
-            logo_bar_w, logo_bar_h = W, W/6
-            wm_size = math.ceil(logo_bar_h * 0.6)
-            wm_x, wm_y = random.randint(0, max(0, W - wm_size)), random.randint(0, max(0, H - wm_size))
-            
-            logo_resized = cv2.resize(self.wmark, (wm_size, wm_size), interpolation=cv2.INTER_LANCZOS4)
-            logo_alpha_slice = 0.7 * logo_resized[:,:,3:] / 255.
-            premul_logo = logo_resized[:,:,:3] * logo_alpha_slice
+              WM_H, WM_W, _ = self.wmark.shape
+              logo_bar_w, logo_bar_h = W, W/6
+              wm_size = math.ceil(logo_bar_h * 0.6)
+              wm_x, wm_y = random.randint(0, max(0, W - wm_size)), random.randint(0, max(0, H - wm_size))
+              
+              logo_resized = cv2.resize(self.wmark, (wm_size, wm_size), interpolation=cv2.INTER_LANCZOS4)
+              logo_alpha_slice = 0.7 * logo_resized[:,:,3:] / 255.
+              premul_logo = logo_resized[:,:,:3] * logo_alpha_slice
 
-            alpha_pad = np.zeros_like(img_H, dtype=float)
-            alpha_pad[wm_y:wm_y+wm_size, wm_x:wm_x+wm_size, :] = logo_alpha_slice
-            overlay_pad = np.zeros_like(img_H, dtype=float)
-            overlay_pad[wm_y:wm_y+wm_size, wm_x:wm_x+wm_size, :] = premul_logo
+              alpha_pad = np.zeros_like(img_H, dtype=float)
+              alpha_pad[wm_y:wm_y+wm_size, wm_x:wm_x+wm_size, :] = logo_alpha_slice
+              overlay_pad = np.zeros_like(img_H, dtype=float)
+              overlay_pad[wm_y:wm_y+wm_size, wm_x:wm_x+wm_size, :] = premul_logo
 
-            img_L = img_H.astype(float)*(1-alpha_pad)+overlay_pad
+              img_L = img_H.astype(float)*(1-alpha_pad)+overlay_pad
 
             # --------------------------------
             # randomly crop the patch
@@ -143,8 +154,13 @@ class DatasetDwCNN(data.Dataset):
             # get L/H image pairs
             # --------------------------------
             """
-            img_L = util.imread_uint(L_path, self.n_channels)
+            img_L = cv2.imread(L_path)
+            H, W, _ = img_L.shape
+            img_L = cv2.resize(img_L, (1024, round(1024*H/W)) , interpolation=cv2.INTER_LANCZOS4)
             img_H = dewatermark(img_L, self.wmark)
+            #
+            img_L = cv2.cvtColor(img_L, cv2.COLOR_BGR2RGB)
+            img_H = cv2.cvtColor(img_H, cv2.COLOR_BGR2RGB)
             # --------------------------------
             # PeakVisor specific
             # --------------------------------
@@ -173,4 +189,3 @@ class DatasetDwCNN(data.Dataset):
 
     def __len__(self):
         return len(self.paths_H)
-
