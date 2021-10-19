@@ -48,6 +48,12 @@ def dewatermark(sample_wm, pv_logo, alpha=0.7):
 	telea = cv2.inpaint(dwm, mask, 3, cv2.INPAINT_TELEA)
 	return telea
 
+def rotate_image(image, angle):
+  image_center = tuple(np.array(image.shape[1::-1]) / 2)
+  rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+  result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LANCZOS4)
+  return result
+
 class DatasetDwCNN(data.Dataset):
     """
     # -----------------------------------------
@@ -93,7 +99,12 @@ class DatasetDwCNN(data.Dataset):
             # --------------------------------
             # train on smaller images (should we?)
             # --------------------------------
-            img_H = cv2.imread(H_path)
+            try:
+                img_H = cv2.imread(H_path)
+            except:
+                print(f"Failed to decode {H_path}... Randomly trying another file.")
+                return self.__getitem__(np.random.randint(0, 128))
+
             H, W, _ = img_H.shape
             img_H = cv2.resize(img_H, (1024, round(1024*H/W)) , interpolation=cv2.INTER_LANCZOS4)
             H, W, _ = img_H.shape
@@ -114,7 +125,7 @@ class DatasetDwCNN(data.Dataset):
             # --------------------------------
               WM_H, WM_W, _ = self.wmark.shape
               logo_bar_w, logo_bar_h = W, W/6
-              wm_size = math.ceil(logo_bar_h * 0.6)
+              wm_size = math.ceil(logo_bar_h * 0.6) + random.randint(-20, 20)
               wm_x, wm_y = random.randint(0, max(0, W - wm_size)), random.randint(0, max(0, H - wm_size))
               
               logo_resized = cv2.resize(self.wmark, (wm_size, wm_size), interpolation=cv2.INTER_LANCZOS4)

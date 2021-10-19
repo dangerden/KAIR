@@ -7,17 +7,17 @@
   
     , "path": {
       "root": "dewatermark"            // "denoising" | "superresolution" | "dejpeg"
-      , "pretrained_netG": null      // path of pretrained model
-      , "pretrained_netE": null      // path of pretrained model
+      , "pretrained_netG": "118000_G.pth"      // path of pretrained model
+      , "pretrained_netE": "118000_E.pth"      // path of pretrained model
     }
   
     , "datasets": {
       "train": {
         "name": "train_dataset"           // just name
         , "dataset_type": "dwcnn"         // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "jpeg"
-        , "dataroot_H": "/content/drive/MyDrive/demark/train" // path of H training dataset. DIV2K (800 training images) + Flickr2K (2650 images) + BSD500 (400 training&testing images) + WED(4744 images) in SwinIR
+        , "dataroot_H": "G:/My Drive/demark/train" // path of H training dataset. DIV2K (800 training images) + Flickr2K (2650 images) + BSD500 (400 training&testing images) + WED(4744 images) in SwinIR
         , "dataroot_L": null              // path of L training dataset
-        , "watermark": "/content/drive/MyDrive/demark/sh-logo.png"
+        , "watermark": "G:/My Drive/demark/sh-logo.png"
         , "H_size": 256                   // patch_size
         
         , "dataloader_shuffle": true
@@ -27,9 +27,9 @@
       , "test": {
         "name": "test_dataset"            // just name
         , "dataset_type": "dwcnn"         // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "jpeg"
-        , "dataroot_H": "/content/drive/MyDrive/demark/val"  // path of H testing dataset
+        , "dataroot_H": "G:/My Drive/demark/test"  // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
-        , "watermark": "/content/drive/MyDrive/demark/sh-logo.png"
+        , "watermark": "G:/My Drive/demark/sh-logo.png"
         , "H_size": 256                   // patch_size
       }
     }

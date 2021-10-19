@@ -18,6 +18,7 @@ from utils.utils_dist import get_dist_info, init_dist
 from data.select_dataset import define_Dataset
 from models.select_model import define_Model
 
+from torch.utils.tensorboard import SummaryWriter
 
 '''
 # --------------------------------------------
@@ -163,8 +164,9 @@ def main(json_path='options/train_msrresnet_psnr.json'):
     # Step--4 (main training)
     # ----------------------------------------
     '''
-
+    writer = SummaryWriter(f"{opt['path']['root']}/tb_logs")
     for epoch in range(1000000):  # keep running
+        epoch_loss = 0
         for i, train_data in enumerate(train_loader):
 
             current_step += 1
@@ -187,6 +189,8 @@ def main(json_path='options/train_msrresnet_psnr.json'):
             # -------------------------------
             # 4) training information
             # -------------------------------
+            writer.add_scalar('batch loss', model.current_log()["G_loss"], epoch * len(train_loader) + i)
+            epoch_loss += model.current_log()["G_loss"]
             if current_step % opt['train']['checkpoint_print'] == 0 and opt['rank'] == 0:
                 logs = model.current_log()  # such as loss
                 message = '<epoch:{:3d}, iter:{:8,d}, lr:{:.3e}> '.format(epoch, current_step, model.current_learning_rate())
@@ -244,5 +248,9 @@ def main(json_path='options/train_msrresnet_psnr.json'):
                 # testing log
                 logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB\n'.format(epoch, current_step, avg_psnr))
 
+        writer.add_scalar('epoch loss',epoch_loss / len(train_loader), epoch)
+        writer.flush()
+    writer.close()
+            
 if __name__ == '__main__':
     main()
