@@ -1,0 +1,116 @@
+21-10-19 11:30:42.638 :   task: msrresnet_gan
+  model: gan
+  gpu_ids: [0]
+  scale: 4
+  n_channels: 3
+  sigma: [0, 50]
+  sigma_test: 0
+  merge_bn: False
+  merge_bn_startpoint: 400000
+  path:[
+    root: superresolution
+    pretrained_netG: None
+    pretrained_netD: None
+    pretrained_netE: None
+    task: superresolution/msrresnet_gan
+    log: superresolution/msrresnet_gan
+    options: superresolution/msrresnet_gan/options
+    models: superresolution/msrresnet_gan/models
+    images: superresolution/msrresnet_gan/images
+    pretrained_optimizerG: None
+    pretrained_optimizerD: None
+  ]
+  datasets:[
+    train:[
+      name: train_dataset
+      dataset_type: sr
+      dataroot_H: trainsets/trainH
+      dataroot_L: None
+      H_size: 96
+      dataloader_shuffle: True
+      dataloader_num_workers: 8
+      dataloader_batch_size: 32
+      phase: train
+      scale: 4
+      n_channels: 3
+    ]
+    test:[
+      name: test_dataset
+      dataset_type: sr
+      dataroot_H: testsets/set5
+      dataroot_L: None
+      phase: test
+      scale: 4
+      n_channels: 3
+    ]
+  ]
+  netG:[
+    net_type: msrresnet0
+    in_nc: 3
+    out_nc: 3
+    nc: 64
+    nb: 16
+    gc: 32
+    ng: 2
+    reduction: 16
+    act_mode: R
+    upsample_mode: upconv
+    downsample_mode: strideconv
+    init_type: orthogonal
+    init_bn_type: uniform
+    init_gain: 0.2
+    scale: 4
+  ]
+  netD:[
+    net_type: discriminator_vgg_96
+    in_nc: 3
+    base_nc: 64
+    act_mode: BL
+    n_layers: 3
+    norm_type: 3
+    init_type: orthogonal
+    init_bn_type: uniform
+    init_gain: 0.2
+  ]
+  train:[
+    G_lossfn_type: l1
+    G_lossfn_weight: 0.01
+    F_lossfn_type: l1
+    F_lossfn_weight: 1
+    F_feature_layer: 34
+    F_weights: 1.0
+    F_use_input_norm: True
+    F_use_range_norm: False
+    gan_type: ragan
+    D_lossfn_weight: 0.005
+    E_decay: 0.999
+    D_init_iters: 0
+    G_optimizer_type: adam
+    G_optimizer_lr: 1e-05
+    G_optimizer_wd: 0
+    D_optimizer_type: adam
+    D_optimizer_lr: 1e-05
+    D_optimizer_wd: 0
+    G_scheduler_type: MultiStepLR
+    G_scheduler_milestones: [200000, 800000, 1200000, 2000000]
+    G_scheduler_gamma: 0.5
+    G_optimizer_reuse: False
+    D_scheduler_type: MultiStepLR
+    D_scheduler_milestones: [200000, 800000, 1200000, 2000000]
+    D_scheduler_gamma: 0.5
+    D_optimizer_reuse: False
+    G_param_strict: True
+    D_param_strict: True
+    E_param_strict: True
+    checkpoint_test: 5000
+    checkpoint_save: 5000
+    checkpoint_print: 200
+  ]
+  opt_path: options/train_msrresnet_gan.json
+  is_train: True
+  find_unused_parameters: True
+  dist: False
+  num_gpu: 1
+  rank: 0
+  world_size: 1
+

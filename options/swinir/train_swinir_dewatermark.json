@@ -1,5 +1,5 @@
 {
-    "task": "swinir_dewatermark"     //  color Gaussian denoising for noise level 15/25/50. root/task/images-models-options
+    "task": "rrdb_dewatermark"     //  color Gaussian denoising for noise level 15/25/50. root/task/images-models-options
     , "model": "plain" // "plain" | "plain2" if two inputs
     , "gpu_ids": [0]
   
