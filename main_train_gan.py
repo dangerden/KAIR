@@ -160,19 +160,22 @@ def main(json_path='options/train_msrresnet_gan.json'):
     # Step--3 (initialize model)
     # ----------------------------------------
     '''
+    logger.info("Step 3: Model Setup")
 
     model = define_Model(opt)
 
+    logger.info("Step 3: Prepare for the Training")
     model.init_train()
-    if opt['rank'] == 0:
-        logger.info(model.info_network())
-        logger.info(model.info_params())
+    #if opt['rank'] == 0:
+        #logger.info(model.info_network())
+        #logger.info(model.info_params())
 
     '''
     # ----------------------------------------
     # Step--4 (main training)
     # ----------------------------------------
     '''
+    logger.info("Step 4: Training")
 
     now = datetime.now()
     run_id = now.strftime("%H-%M-%b-%d")
@@ -180,7 +183,7 @@ def main(json_path='options/train_msrresnet_gan.json'):
     for epoch in range(1000000):  # keep running
         e_g_loss, e_d_loss = 0, 0
         for i, train_data in enumerate(train_loader):
-
+            print(f"step {i}")
             current_step += 1
 
             # -------------------------------

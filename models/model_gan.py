@@ -129,10 +129,10 @@ class ModelGAN(ModelBase):
             F_use_input_norm = self.opt_train['F_use_input_norm']
             F_use_range_norm = self.opt_train['F_use_range_norm']
             if self.opt['dist']:
-                self.F_lossfn = PerceptualLoss(feature_layer=F_feature_layer, weights=F_weights, lossfn_type=F_lossfn_type, use_input_norm=F_use_input_norm, use_range_norm=F_use_range_norm).to(self.device)
+                self.F_lossfn = PerceptualLoss(feature_layer=F_feature_layer, weights=F_weights, lossfn_type=F_lossfn_type, use_input_norm=F_use_input_norm, use_range_norm=F_use_range_norm, fe_weights=self.opt['path']['pretrained_netFE']).to(self.device)
             else:
-                self.F_lossfn = PerceptualLoss(feature_layer=F_feature_layer, weights=F_weights, lossfn_type=F_lossfn_type, use_input_norm=F_use_input_norm, use_range_norm=F_use_range_norm)
-                self.F_lossfn.vgg = self.model_to_device(self.F_lossfn.vgg)
+                self.F_lossfn = PerceptualLoss(feature_layer=F_feature_layer, weights=F_weights, lossfn_type=F_lossfn_type, use_input_norm=F_use_input_norm, use_range_norm=F_use_range_norm, fe_weights=self.opt['path']['pretrained_netFE'])
+                self.F_lossfn.ft_ex = self.model_to_device(self.F_lossfn.ft_ex)
                 self.F_lossfn.lossfn = self.F_lossfn.lossfn.to(self.device)
             self.F_lossfn_weight = self.opt_train['F_lossfn_weight']
         else:
@@ -323,17 +323,17 @@ class ModelGAN(ModelBase):
     # ----------------------------------------
     def print_network(self):
         msg = self.describe_network(self.netG)
-        print(msg)
+        print("print_network GAN G")#
         if self.is_train:
             msg = self.describe_network(self.netD)
-            print(msg)
+            print("print_network GAN D")#msg)
 
     # ----------------------------------------
     # print params
     # ----------------------------------------
     def print_params(self):
         msg = self.describe_params(self.netG)
-        print(msg)
+        print("print_params GAN")#msg)
 
     # ----------------------------------------
     # network information

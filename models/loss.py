@@ -1,9 +1,12 @@
+from models.network_cvae import ThreeLayerCVAE
 import torch
 import torch.nn as nn
 import torchvision
 from torch.nn import functional as F
 from torch import autograd as autograd
-
+from torchsummary import summary
+from torchvision.models.feature_extraction import get_graph_node_names
+from torchvision.models.feature_extraction import create_feature_extractor
 
 """
 Sequential(
@@ -47,18 +50,29 @@ Sequential(
 )
 """
 
-
+#from network_cvae import ThreeLayerCVAE
 # --------------------------------------------
 # Perceptual loss
 # --------------------------------------------
-class VGGFeatureExtractor(nn.Module):
-    def __init__(self, feature_layer=[2,7,16,25,34], use_input_norm=True, use_range_norm=False):
-        super(VGGFeatureExtractor, self).__init__()
+class FeatureExtractor(nn.Module):
+    def __init__(self, feature_layer=[2,7,16,25,34], use_input_norm=True, use_range_norm=False, fe_weights=None):
+        super(FeatureExtractor, self).__init__()
         '''
         use_input_norm: If True, x: [0, 1] --> (x - mean) / std
         use_range_norm: If True, x: [0, 1] --> x: [-1, 1]
         '''
-        model = torchvision.models.vgg19(pretrained=True)
+        #model = torchvision.models.vgg19(pretrained=True)
+        model = ThreeLayerCVAE(input_size=(512,512), variational=False)
+        if fe_weights is not None:
+            print(f'Loading Feature Extractor weights from [{fe_weights}] ...')
+            state_dict = torch.load(fe_weights, map_location=torch.device('cpu'))
+            model.load_state_dict(state_dict, strict=True)
+        print(f"Using a ThreeLayerCVAE as a Feature Extractor")
+        #print(get_graph_node_names(model))
+        self.features = create_feature_extractor(model, {
+            'bottleneck.0': 'feat1', 
+            'bottleneck.2': 'feat2'
+        })
         self.use_input_norm = use_input_norm
         self.use_range_norm = use_range_norm
         if self.use_input_norm:
@@ -67,15 +81,15 @@ class VGGFeatureExtractor(nn.Module):
             self.register_buffer('mean', mean)
             self.register_buffer('std', std)
         self.list_outputs = isinstance(feature_layer, list)
-        if self.list_outputs:
-            self.features = nn.Sequential()
-            feature_layer = [-1] + feature_layer
-            for i in range(len(feature_layer)-1):
-                self.features.add_module('child'+str(i), nn.Sequential(*list(model.features.children())[(feature_layer[i]+1):(feature_layer[i+1]+1)]))
-        else:
-            self.features = nn.Sequential(*list(model.features.children())[:(feature_layer + 1)])
-
-        print(self.features)
+        #if self.list_outputs:
+        #    self.features = nn.Sequential()
+        #    feature_layer = [-1] + feature_layer
+        #    print(f"feature_layer: {feature_layer}")
+        #    for i in range(len(feature_layer)-1):
+        #        print(f"add_module child{str(i)} [{(feature_layer[i]+1)}:{(feature_layer[i+1]+1)}]")
+        #        self.features.add_module('child'+str(i), nn.Sequential(*list(model.features.children())[(feature_layer[i]+1):(feature_layer[i+1]+1)]))
+        #else:
+        #    self.features = nn.Sequential(*list(model.features.children())[:(feature_layer + 1)])
 
         # No need to BP to variable
         for k, v in self.features.named_parameters():
@@ -87,11 +101,13 @@ class VGGFeatureExtractor(nn.Module):
         if self.use_input_norm:
             x = (x - self.mean) / self.std
         if self.list_outputs:
-            output = []
-            for child_model in self.features.children():
-                x = child_model(x)
-                output.append(x.clone())
-            return output
+            #output = []
+            #for child_model in self.features.children():
+            #    x = child_model(x)
+            #    output.append(x.clone())
+            #return output
+            fts = self.features(x)
+            return [fts["feat1"],fts["feat2"]]
         else:
             return self.features(x)
 
@@ -100,16 +116,16 @@ class PerceptualLoss(nn.Module):
     """VGG Perceptual loss
     """
 
-    def __init__(self, feature_layer=[2,7,16,25,34], weights=[0.1,0.1,1.0,1.0,1.0], lossfn_type='l1', use_input_norm=True, use_range_norm=False):
+    def __init__(self, feature_layer=[2,7,16,25,34], weights=[0.1,0.1,1.0,1.0,1.0], lossfn_type='l1', use_input_norm=True, use_range_norm=False, fe_weights=None):
         super(PerceptualLoss, self).__init__()
-        self.vgg = VGGFeatureExtractor(feature_layer=feature_layer, use_input_norm=use_input_norm, use_range_norm=use_range_norm)
+        self.ft_ex = FeatureExtractor(feature_layer=feature_layer, use_input_norm=use_input_norm, use_range_norm=use_range_norm, fe_weights=fe_weights)
         self.lossfn_type = lossfn_type
         self.weights = weights
         if self.lossfn_type == 'l1':
             self.lossfn = nn.L1Loss()
         else:
             self.lossfn = nn.MSELoss()
-        print(f'feature_layer: {feature_layer}  with weights: {weights}')
+        #print(f'feature_layer: {feature_layer}  with weights: {weights}')
 
     def forward(self, x, gt):
         """Forward function.
@@ -119,14 +135,14 @@ class PerceptualLoss(nn.Module):
         Returns:
             Tensor: Forward results.
         """
-        x_vgg, gt_vgg = self.vgg(x), self.vgg(gt.detach())
+        x_ft, gt_ft = self.ft_ex(x), self.ft_ex(gt.detach())
         loss = 0.0
-        if isinstance(x_vgg, list):
-            n = len(x_vgg)
+        if isinstance(x_ft, list):
+            n = len(x_ft)
             for i in range(n):
-                loss += self.weights[i] * self.lossfn(x_vgg[i], gt_vgg[i])
+                loss += self.weights[i] * self.lossfn(x_ft[i], gt_ft[i])
         else:
-            loss += self.lossfn(x_vgg, gt_vgg.detach())
+            loss += self.lossfn(x_ft, gt_ft.detach())
         return loss
 
 # --------------------------------------------

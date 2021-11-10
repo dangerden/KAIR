@@ -1,7 +1,7 @@
 {
   "task": "satsrgan_x4_gan" // root/task/images|models|options
   , "model": "gan"        // "gan"
-  , "gpu_ids": [0]        // [0,1,2,3] for 4 GPUs
+  //, "gpu_ids": [0]        // [0,1,2,3] for 4 GPUs
 
   , "scale": 4       // broadcast to "netG" if SISR
   , "n_channels": 3  // broadcast to "datasets", 1 for grayscale, 3 for color
@@ -10,20 +10,21 @@
     "root": "superresolution"  // "denoising" | "superresolution"
     , "pretrained_netG": null  // path of pretrained model
     , "pretrained_netD": null  // path of pretrained model
-	, "pretrained_netE": null  // path of pretrained model
+	  , "pretrained_netE": null  // path of pretrained model
+    , "pretrained_netFE": "/Volumes/GoogleDrive/My Drive/sr-sat/ae/vae-3090-240-0.0008.pth"
 	}
 
   , "datasets": {
     "train": {
       "name": "train_dataset"           // fixed
       , "dataset_type": "blindsr"       // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-      , "dataroot_H": "/sr/train"// path of H training dataset
+      , "dataroot_H": "/Volumes/GoogleDrive/My Drive/sr-sat/datasets/trainH"       // path of H training dataset
       , "dataroot_L": null              // path of L training dataset
 
       , "degradation_type": "bsrgan"    // "bsrgan" | "bsrgan_plus"
       , "H_size": 256                   // patch_size 256 | 288 | 320
       , "shuffle_prob": 0.1             // 
-      , "lq_patchsize": 72
+      , "lq_patchsize": 64
       , "use_sharp": false
 
       , "dataloader_shuffle": true
@@ -40,7 +41,7 @@
       , "lq_patchsize": 72
       , "use_sharp": false
 
-      , "dataroot_H": "/sr/test"   // path of H testing dataset
+      , "dataroot_H": "/Volumes/GoogleDrive/My Drive/sr-sat/datasets/testsets/test-5-sat"        // path of H testing dataset
       , "dataroot_L": null              // path of L testing dataset
     }
   }
@@ -75,15 +76,15 @@
   }
 
   , "train": {
-    "G_lossfn_type": "l1"    // "l1" | "l2" | "l2sum" | "l1c" | "ssim"
+    "G_lossfn_type": "ssim"    // "l1" | "l2" | "l2sum" | "l1c" | "ssim"
     , "G_lossfn_weight": 1
 
-    //, "F_lossfn_type": "l1"  // "l1" | "l2"
-    //, "F_lossfn_weight": 1
-    //, "F_feature_layer": [2,7,16,25,34]        // 25 | [2,7,16,25,34]
-    //, "F_weights": [0.1,0.1,1.0,1.0,1.0]       // 1.0 | [0.1,0.1,1.0,1.0,1.0]
-    //, "F_use_input_norm": true
-    //, "F_use_range_norm": false
+    , "F_lossfn_type": "l1"  // "l1" | "l2"
+    , "F_lossfn_weight": 1
+    , "F_feature_layer": [2,7,16,25,34]        // 25 | [2,7,16,25,34]
+    , "F_weights": [0.1,0.1,1.0,1.0,1.0]       // 1.0 | [0.1,0.1,1.0,1.0,1.0]
+    , "F_use_input_norm": true
+    , "F_use_range_norm": false
 
     , "gan_type": "lsgan"     // "gan" | "ragan" | "lsgan" | "wgan" | "softplusgan"
     , "D_lossfn_weight": 1
