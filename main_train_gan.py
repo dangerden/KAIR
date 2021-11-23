@@ -202,8 +202,7 @@ def main(json_path='options/train_msrresnet_gan.json'):
             # 4) training information
             # -------------------------------
             logs = model.current_log()  # such as loss
-            for k, v in logs.items():  # merge log information into message
-                writer.add_scalar(f'batch loss {k}', v, epoch * len(train_loader) + i)
+            writer.add_scalars('batch', logs, i+epoch*len(train_loader))
             e_g_loss += model.current_log()["G_loss"]
             e_d_loss += model.current_log()["D_loss"]
             if current_step % opt['train']['checkpoint_print'] == 0 and opt['rank'] == 0:
@@ -261,8 +260,7 @@ def main(json_path='options/train_msrresnet_gan.json'):
 
                 # testing log
                 logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB\n'.format(epoch, current_step, avg_psnr))
-        writer.add_scalar('epoch G loss', e_g_loss / len(train_loader), epoch)
-        writer.add_scalar('epoch D loss', e_d_loss / len(train_loader), epoch)
+        writer.add_scalars('epoch', {'G loss':e_g_loss / len(train_loader), 'D loss': e_d_loss / len(train_loader)}, epoch)
         writer.flush()
     writer.close()
 

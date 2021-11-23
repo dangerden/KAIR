@@ -39,8 +39,7 @@ def logger_info(logger_name, log_path='default_logger.log'):
         fh.setFormatter(formatter)
         log.setLevel(level)
         log.addHandler(fh)
-        # print(len(log.handlers))
-
+        
         sh = logging.StreamHandler()
         sh.setFormatter(formatter)
         log.addHandler(sh)
