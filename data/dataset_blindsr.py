@@ -24,7 +24,7 @@ class DatasetBlindSR(data.Dataset):
         self.patch_size = self.opt['H_size'] if self.opt['H_size'] else self.lq_patchsize*self.sf
 
         self.paths_H = util.get_image_paths(opt['dataroot_H'])
-        print(len(self.paths_H))
+        #print(len(self.paths_H))
 
 #        for n, v in enumerate(self.paths_H):
 #            if 'face' in v:
