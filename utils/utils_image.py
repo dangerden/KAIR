@@ -4,6 +4,7 @@ import random
 import numpy as np
 import torch
 import cv2
+import re
 from torchvision.utils import make_grid
 from datetime import datetime
 # import torchvision.transforms as transforms
@@ -64,10 +65,10 @@ def surf(Z, cmap='rainbow', figsize=None):
 '''
 
 
-def get_image_paths(dataroot):
+def get_image_paths(dataroot, include=None):
     paths = None  # return None if dataroot is None
     if isinstance(dataroot, str):
-        paths = sorted(_get_paths_from_images(dataroot))
+        paths = sorted(_get_paths_from_images(dataroot, include))
     elif isinstance(dataroot, list):
         paths = []
         for i in dataroot:
@@ -75,10 +76,12 @@ def get_image_paths(dataroot):
     return paths
 
 
-def _get_paths_from_images(path):
+def _get_paths_from_images(path, include=None):
     assert os.path.isdir(path), '{:s} is not a valid directory'.format(path)
     images = []
     for dirpath, _, fnames in sorted(os.walk(path)):
+        if include is not None:
+            fnames = [f for f in fnames if re.match(include, f)]
         for fname in sorted(fnames):
             if is_image_file(fname):
                 img_path = os.path.join(dirpath, fname)

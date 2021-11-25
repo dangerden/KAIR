@@ -34,6 +34,9 @@ def define_Dataset(dataset_opt):
     # -----------------------------------------
     # super-resolution
     # -----------------------------------------
+    elif dataset_type in ['sat-sr', 'peakvisor-sr']:
+        from data.dataset_satsr import DatasetSatSR as D
+
     elif dataset_type in ['sr', 'super-resolution']:
         from data.dataset_sr import DatasetSR as D
 

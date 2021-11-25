@@ -124,6 +124,7 @@ def main(json_path='options/train_msrresnet_gan.json'):
     # 1) create_dataset
     # 2) creat_dataloader for train and test
     # ----------------------------------------
+    logger.info("Step 2: Dataset setup")
     for phase, dataset_opt in opt['datasets'].items():
         if phase == 'train':
             train_set = define_Dataset(dataset_opt)
@@ -149,12 +150,15 @@ def main(json_path='options/train_msrresnet_gan.json'):
 
         elif phase == 'test':
             test_set = define_Dataset(dataset_opt)
+            test_set = torch.utils.data.Subset(test_set, [6, 34, 128, 1024, 3097])
             test_loader = DataLoader(test_set, batch_size=1,
                                      shuffle=False, num_workers=1,
                                      drop_last=False, pin_memory=True)
+            test_size = int(math.ceil(len(test_set) / dataset_opt['dataloader_batch_size']))
+            logger.info('Number of val images: {:,d}, iters: {:,d}'.format(len(test_set), test_size))
         else:
             raise NotImplementedError("Phase [%s] is not recognized." % phase)
-
+    
     '''
     # ----------------------------------------
     # Step--3 (initialize model)
@@ -183,7 +187,7 @@ def main(json_path='options/train_msrresnet_gan.json'):
     for epoch in range(1000000):  # keep running
         e_g_loss, e_d_loss = 0, 0
         for i, train_data in enumerate(train_loader):
-            print(f"step {i}")
+            #print(f"step {i}")
             current_step += 1
 
             # -------------------------------
