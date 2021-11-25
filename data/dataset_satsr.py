@@ -28,8 +28,16 @@ class DatasetSatSR(data.Dataset):
         self.paths_H = util.get_image_paths(opt['dataroot_H'], include=".*-hq.png")
         self.paths_L = util.get_image_paths(opt['dataroot_H'], include=".*-lq.png")
 
+        #fails = 0
+        #for i, val in enumerate(self.paths_H):
+        #    if val[-23:-6] != self.paths_L[i][-23:-6]:
+        #        fails += 1
+        #        if fails<5:
+        #            print(i, ",",val[-23:-6])
+
         assert self.paths_H, 'Error: H path is empty.'
         if self.paths_L and self.paths_H:
+            print(self.paths_H[0], self.paths_L[0])
             assert len(self.paths_L) == len(self.paths_H), 'L/H mismatch - {}, {}.'.format(len(self.paths_L), len(self.paths_H))
 
     def __getitem__(self, index):
